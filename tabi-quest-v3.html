@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1C1814">
+<title>旅の書 ─ 京都秘境録</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Noto+Sans+JP:wght@400;700&display=swap');
+
+:root {
+  --sumi: #1C1814;
+  --sumi2: #2E2820;
+  --washi: #F5F0E6;
+  --washi2: #EDE6D6;
+  --kin: #B8962E;
+  --kin-light: #F0E6C0;
+  --shu: #C94F2C;
+  --shu-light: #F5DDD7;
+  --ryoku: #3D6B4F;
+  --ryoku-light: #D4E8DA;
+  --muted: #8A7F72;
+  --border: rgba(28,24,20,0.12);
+  --shadow: 0 2px 16px rgba(28,24,20,0.14);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: var(--washi);
+  color: var(--sumi);
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  overflow-x: hidden;
+  /* 和紙テクスチャ風のノイズ */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+}
+
+/* ───── SVG ICONS ───── */
+.ico { display:inline-block; vertical-align:middle; }
+
+/* ───── HEADER ───── */
+.app-header {
+  background: var(--sumi);
+  color: var(--washi);
+  padding: 0 20px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 2px solid var(--kin);
+}
+.app-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: .18em;
+  color: var(--kin);
+}
+.app-subtitle {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: .12em;
+  margin-top: 1px;
+}
+
+/* ───── TABS ───── */
+.tab-bar {
+  display: flex;
+  background: var(--sumi2);
+  position: sticky;
+  top: 56px;
+  z-index: 99;
+}
+.tab-btn {
+  flex: 1;
+  padding: 11px 8px 10px;
+  border: none;
+  background: none;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'Noto Serif JP', serif;
+  letter-spacing: .1em;
+  cursor: pointer;
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+  transition: all .2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.tab-btn svg { opacity: .5; transition: opacity .2s; }
+.tab-btn.active { color: var(--kin); border-bottom-color: var(--kin); }
+.tab-btn.active svg { opacity: 1; }
+
+/* ───── SCREENS ───── */
+.screen { display: none; padding: 16px 14px 88px; }
+.screen.active { display: block; }
+
+/* ───── DAY HEADER ───── */
+.day-section { margin-bottom: 4px; }
+.day-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0 10px;
+}
+.day-header-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--kin), transparent);
+}
+.day-header-text {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--kin);
+  letter-spacing: .12em;
+  white-space: nowrap;
+}
+
+/* ───── PLAN CARD ───── */
+.plan-card {
+  background: var(--washi2);
+  border-radius: 4px;
+  border-left: 3px solid var(--kin);
+  padding: 13px 14px;
+  margin-bottom: 8px;
+  box-shadow: var(--shadow);
+  position: relative;
+}
+.plan-card::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 0 14px 14px 0;
+  border-color: transparent var(--kin) transparent transparent;
+  opacity: .3;
+}
+.plan-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.plan-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  flex: 1;
+}
+.plan-actions { display: flex; gap: 2px; flex-shrink: 0; }
+.icon-btn {
+  background: none; border: none;
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border-radius: 4px;
+  color: var(--muted);
+  transition: all .15s;
+}
+.icon-btn:active { background: var(--border); }
+.plan-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-top: 6px;
+}
+.plan-links { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+.plan-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--sumi);
+  color: var(--kin);
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 3px;
+  letter-spacing: .06em;
+}
+
+/* ───── ACCORDION ───── */
+.spot-accordion {
+  margin-bottom: 12px;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+.spot-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 16px;
+  background: var(--sumi);
+  cursor: pointer;
+  border: none;
+  width: 100%;
+  font-family: inherit;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .15s;
+}
+.spot-header:active { background: var(--sumi2); }
+
+.spot-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid var(--kin);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(184,150,46,.08);
+}
+.spot-info { flex: 1; min-width: 0; }
+.spot-name {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--washi);
+  letter-spacing: .06em;
+}
+.spot-day { font-size: 11px; color: var(--muted); margin-top: 2px; letter-spacing: .06em; }
+.spot-bar-wrap {
+  height: 3px;
+  background: rgba(255,255,255,.1);
+  border-radius: 2px;
+  margin-top: 7px;
+  overflow: hidden;
+}
+.spot-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--kin), var(--ryoku));
+  border-radius: 2px;
+  transition: width .5s ease;
+}
+.spot-count {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--kin);
+  font-family: 'Noto Serif JP', serif;
+  flex-shrink: 0;
+}
+.spot-count.done { color: var(--ryoku); }
+.spot-chevron {
+  color: var(--muted);
+  flex-shrink: 0;
+  transition: transform .25s;
+}
+.spot-accordion.open .spot-chevron { transform: rotate(180deg); }
+
+.spot-body { display: none; background: var(--washi2); }
+.spot-accordion.open .spot-body { display: block; }
+
+/* ───── QUEST ITEM ───── */
+.quest-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background .15s;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+.quest-item:last-child { border-bottom: none; }
+.quest-item:active { background: rgba(28,24,20,.04); }
+.quest-item.cleared { background: rgba(61,107,79,.04); }
+
+.qi-icon-wrap {
+  width: 42px;
+  height: 42px;
+  border-radius: 4px;
+  border: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--washi);
+  position: relative;
+}
+.quest-item.cleared .qi-icon-wrap {
+  border-color: var(--ryoku);
+  background: var(--ryoku-light);
+}
+.qi-seal {
+  position: absolute;
+  top: -6px; right: -6px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--shu);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--washi);
+  font-family: 'Noto Serif JP', serif;
+}
+.quest-item.cleared .qi-seal { display: flex; }
+
+.qi-body { flex: 1; min-width: 0; }
+.qi-name {
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Noto Serif JP', serif;
+  line-height: 1.4;
+}
+.qi-desc {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.qi-status {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 2px;
+  display: inline-block;
+  margin-top: 5px;
+  letter-spacing: .06em;
+}
+.status-open { background: var(--kin-light); color: #7A5C00; }
+.status-done { background: var(--ryoku-light); color: #1B5E35; }
+.qi-arrow { color: var(--border); flex-shrink: 0; }
+
+/* ───── QUEST DETAIL ───── */
+#quest-detail-view { display: none; padding-bottom: 88px; }
+#quest-detail-view.show { display: block; }
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Noto Serif JP', serif;
+  color: var(--kin);
+  cursor: pointer;
+  padding: 14px 16px 10px;
+  letter-spacing: .06em;
+}
+
+.detail-wrap { padding: 0 14px 14px; }
+
+/* 巻物カード */
+.scroll-card {
+  background: var(--washi2);
+  border-radius: 4px;
+  border-top: 4px solid var(--sumi);
+  border-bottom: 4px solid var(--sumi);
+  padding: 20px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+.scroll-card::before, .scroll-card::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 18px;
+  background: radial-gradient(ellipse at center, rgba(28,24,20,.08) 0%, transparent 70%);
+}
+.scroll-card::before { left: 0; }
+.scroll-card::after { right: 0; }
+
+.detail-spot-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--kin);
+  letter-spacing: .1em;
+  border: 1px solid var(--kin);
+  padding: 2px 8px;
+  border-radius: 2px;
+  margin-bottom: 10px;
+}
+.detail-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 19px;
+  font-weight: 900;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+.detail-desc { font-size: 13px; color: var(--muted); line-height: 1.8; }
+
+.hint-box {
+  background: var(--kin-light);
+  border-left: 3px solid var(--kin);
+  border-radius: 2px;
+  padding: 10px 13px;
+  margin-top: 12px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.hint-box b { color: #7A5C00; }
+
+.reveal-btn {
+  width: 100%;
+  background: none;
+  border: 1.5px solid var(--sumi);
+  border-radius: 3px;
+  padding: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Noto Serif JP', serif;
+  color: var(--sumi);
+  cursor: pointer;
+  margin-top: 12px;
+  letter-spacing: .08em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: all .15s;
+}
+.reveal-btn:active { background: var(--border); }
+
+.answer-box {
+  background: var(--sumi);
+  border-radius: 3px;
+  padding: 15px 16px;
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.9;
+  white-space: pre-wrap;
+  color: var(--washi);
+  display: none;
+}
+.answer-box.show { display: block; }
+.answer-box b {
+  color: var(--kin);
+  font-family: 'Noto Serif JP', serif;
+  font-size: 11px;
+  letter-spacing: .1em;
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* ───── QUIZ ───── */
+.quiz-card {
+  background: var(--washi2);
+  border-radius: 4px;
+  border-left: 3px solid var(--shu);
+  padding: 16px;
+  box-shadow: var(--shadow);
+  margin-bottom: 14px;
+}
+.quiz-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  color: var(--shu);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.quiz-q {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+.choices { display: flex; flex-direction: column; gap: 8px; }
+.choice-btn {
+  background: var(--washi);
+  border: 1.5px solid var(--border);
+  border-radius: 3px;
+  padding: 13px 15px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  text-align: left;
+  transition: all .15s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.choice-btn::before {
+  content: '';
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  flex-shrink: 0;
+  transition: all .15s;
+}
+.choice-btn.correct { background: var(--ryoku-light); border-color: var(--ryoku); color: #1B5E35; }
+.choice-btn.correct::before { background: var(--ryoku); border-color: var(--ryoku); }
+.choice-btn.wrong { background: var(--shu-light); border-color: var(--shu); color: var(--shu); }
+.choice-btn.wrong::before { background: var(--shu); border-color: var(--shu); }
+
+.quiz-result {
+  border-radius: 3px;
+  padding: 12px 14px;
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.7;
+  display: none;
+}
+.quiz-result.show { display: block; }
+.quiz-result.ok { background: var(--ryoku-light); color: #1B5E35; border-left: 3px solid var(--ryoku); }
+.quiz-result.ng { background: var(--shu-light); color: var(--shu); border-left: 3px solid var(--shu); }
+
+/* ───── PHOTO ───── */
+.photo-card {
+  background: var(--washi2);
+  border-radius: 4px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+  margin-bottom: 14px;
+}
+.photo-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  color: var(--muted);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.photo-label {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.photo-upload {
+  border: 1.5px dashed var(--kin);
+  border-radius: 4px;
+  padding: 28px 16px;
+  text-align: center;
+  cursor: pointer;
+  background: var(--kin-light);
+  position: relative;
+  transition: background .15s;
+}
+.photo-upload:active { background: #e8d9a0; }
+.photo-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.photo-upload-icon { margin-bottom: 8px; }
+.photo-upload-text { font-size: 13px; color: #7A5C00; font-weight: 700; letter-spacing: .04em; }
+.photo-preview { display: none; border-radius: 4px; overflow: hidden; position: relative; }
+.photo-preview img { width: 100%; max-height: 220px; object-fit: cover; display: block; }
+.retake-btn {
+  position: absolute;
+  bottom: 10px; right: 10px;
+  background: rgba(28,24,20,.75);
+  color: var(--washi);
+  border: none;
+  border-radius: 3px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: .06em;
+}
+
+/* ───── CLEAR BTN ───── */
+.clear-btn {
+  width: 100%;
+  background: var(--sumi);
+  color: var(--kin);
+  border: 1.5px solid var(--kin);
+  border-radius: 4px;
+  padding: 18px;
+  font-size: 16px;
+  font-weight: 900;
+  font-family: 'Noto Serif JP', serif;
+  cursor: pointer;
+  margin-bottom: 20px;
+  letter-spacing: .14em;
+  transition: all .15s;
+  opacity: .35;
+  pointer-events: none;
+}
+.clear-btn.ready { opacity: 1; pointer-events: auto; }
+.clear-btn.ready:active { transform: scale(.97); background: var(--kin); color: var(--sumi); }
+.clear-btn.done {
+  background: var(--ryoku);
+  border-color: var(--ryoku);
+  color: #fff;
+  opacity: 1;
+  pointer-events: none;
+  letter-spacing: .1em;
+}
+
+/* ───── SEAL MODAL (朱印演出) ───── */
+.modal-bg {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(28,24,20,.75);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-bg.show { display: flex; }
+.modal-box {
+  background: var(--washi);
+  border-radius: 4px;
+  padding: 36px 28px;
+  text-align: center;
+  max-width: 340px;
+  width: 100%;
+  border-top: 4px solid var(--sumi);
+  border-bottom: 4px solid var(--sumi);
+  animation: unfurl .4s cubic-bezier(.34,1.4,.64,1);
+}
+@keyframes unfurl {
+  from { transform: scaleY(0.1) scaleX(0.95); opacity: 0; }
+  to   { transform: scaleY(1) scaleX(1); opacity: 1; }
+}
+.modal-seal {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  border: 3px solid var(--shu);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 14px;
+  color: var(--shu);
+  animation: stamp .35s cubic-bezier(.17,.67,.3,1.4) .2s both;
+}
+@keyframes stamp {
+  from { transform: scale(2.5); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+.modal-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--shu);
+  letter-spacing: .2em;
+  margin-bottom: 8px;
+}
+.modal-sub {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+.modal-close {
+  background: var(--sumi);
+  color: var(--kin);
+  border: none;
+  border-radius: 3px;
+  padding: 13px 32px;
+  font-size: 14px;
+  font-weight: 900;
+  font-family: 'Noto Serif JP', serif;
+  cursor: pointer;
+  letter-spacing: .14em;
+}
+
+/* ───── FORM SHEET ───── */
+.form-modal {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(28,24,20,.55);
+  z-index: 400;
+  align-items: flex-end;
+  justify-content: center;
+}
+.form-modal.show { display: flex; }
+.form-sheet {
+  background: var(--washi);
+  border-radius: 8px 8px 0 0;
+  padding: 24px 20px 44px;
+  width: 100%; max-width: 480px;
+  animation: slideup .28s ease;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+@keyframes slideup { from{transform:translateY(100%);} to{transform:translateY(0);} }
+.form-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: .1em;
+  margin-bottom: 20px;
+  color: var(--sumi);
+}
+.fg { margin-bottom: 14px; }
+label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 5px;
+  letter-spacing: .08em;
+}
+input[type=text], input[type=url], input[type=date], textarea {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 3px;
+  padding: 11px 13px;
+  font-size: 15px;
+  font-family: 'Noto Sans JP', sans-serif;
+  outline: none;
+  background: var(--washi2);
+  color: var(--sumi);
+  transition: border-color .2s;
+}
+input:focus, textarea:focus { border-color: var(--kin); }
+textarea { resize: vertical; min-height: 76px; }
+.link-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 7px; }
+.link-item { display: flex; gap: 7px; align-items: center; }
+.link-item input { flex: 1; }
+.link-remove { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--shu); padding: 0; line-height: 1; }
+.add-link-btn {
+  background: none;
+  border: 1.5px dashed var(--kin);
+  border-radius: 3px;
+  padding: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #7A5C00;
+  cursor: pointer;
+  width: 100%;
+  font-family: inherit;
+  letter-spacing: .06em;
+}
+.form-submit {
+  width: 100%;
+  background: var(--sumi);
+  color: var(--kin);
+  border: none;
+  border-radius: 3px;
+  padding: 15px;
+  font-size: 15px;
+  font-weight: 900;
+  font-family: 'Noto Serif JP', serif;
+  cursor: pointer;
+  margin-top: 8px;
+  letter-spacing: .1em;
+}
+.form-cancel {
+  width: 100%;
+  background: none;
+  border: 1.5px solid var(--border);
+  border-radius: 3px;
+  padding: 13px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  margin-top: 8px;
+  color: var(--muted);
+}
+
+/* ───── FAB ───── */
+.fab {
+  position: fixed;
+  bottom: 80px; right: 20px;
+  background: var(--sumi);
+  color: var(--kin);
+  border: 1.5px solid var(--kin);
+  width: 52px; height: 52px;
+  border-radius: 4px;
+  font-size: 26px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(28,24,20,.3);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900;
+  z-index: 200;
+  transition: transform .15s;
+  font-family: 'Noto Serif JP', serif;
+}
+.fab:active { transform: scale(.92); }
+
+/* ───── BOTTOM NAV ───── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 480px;
+  background: var(--sumi);
+  border-top: 1px solid var(--kin);
+  display: flex;
+  z-index: 300;
+}
+.bnav-btn {
+  flex: 1; padding: 10px 8px 16px;
+  border: none; background: none;
+  font-size: 10px; font-weight: 700;
+  color: var(--muted); cursor: pointer;
+  font-family: 'Noto Serif JP', serif;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 4px;
+  transition: color .2s;
+  letter-spacing: .08em;
+}
+.bnav-btn svg { opacity: .4; transition: opacity .2s; }
+.bnav-btn.active { color: var(--kin); }
+.bnav-btn.active svg { opacity: 1; }
+
+/* ───── EMPTY ───── */
+.empty { text-align: center; padding: 56px 20px; color: var(--muted); }
+.empty p { font-size: 13px; line-height: 1.8; margin-top: 14px; }
+</style>
+</head>
+<body>
+
+<!-- SVG ICON DEFS (線のシンプルな和風アイコン) -->
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="ico-scroll" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="4" y="4" width="16" height="16" rx="2"/>
+    <line x1="8" y1="9" x2="16" y2="9"/>
+    <line x1="8" y1="12" x2="16" y2="12"/>
+    <line x1="8" y1="15" x2="13" y2="15"/>
+  </symbol>
+  <symbol id="ico-sword" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="5" y1="19" x2="14" y2="10"/>
+    <polyline points="14,4 20,4 20,10"/>
+    <line x1="14" y1="4" x2="5" y2="13"/>
+    <line x1="8" y1="16" x2="5" y2="19"/>
+  </symbol>
+  <symbol id="ico-torii" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+    <line x1="4" y1="8" x2="20" y2="8"/>
+    <line x1="6" y1="6" x2="18" y2="6"/>
+    <line x1="7" y1="8" x2="7" y2="20"/>
+    <line x1="17" y1="8" x2="17" y2="20"/>
+    <line x1="7" y1="13" x2="17" y2="13"/>
+  </symbol>
+  <symbol id="ico-castle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="14" width="18" height="7"/>
+    <rect x="6" y="10" width="12" height="4"/>
+    <rect x="9" y="7" width="6" height="3"/>
+    <line x1="6" y1="10" x2="6" y2="14"/>
+    <line x1="18" y1="10" x2="18" y2="14"/>
+    <rect x="10" y="17" width="4" height="4"/>
+    <line x1="3" y1="10" x2="3" y2="10"/>
+    <line x1="5" y1="7" x2="5" y2="10"/>
+    <line x1="9" y1="7" x2="9" y2="10"/>
+    <line x1="15" y1="7" x2="15" y2="10"/>
+    <line x1="19" y1="7" x2="19" y2="10"/>
+  </symbol>
+  <symbol id="ico-leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 22V12"/>
+    <path d="M12 12C12 8 15 4 20 4C20 9 17 12 12 12Z"/>
+    <path d="M12 12C12 8 9 4 4 4C4 9 7 12 12 12Z"/>
+  </symbol>
+  <symbol id="ico-camera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+    <circle cx="12" cy="13" r="4"/>
+  </symbol>
+  <symbol id="ico-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+  </symbol>
+  <symbol id="ico-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+  </symbol>
+  <symbol id="ico-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+  </symbol>
+  <symbol id="ico-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="3 6 5 6 21 6"/>
+    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+    <path d="M10 11v6"/>
+    <path d="M14 11v6"/>
+    <path d="M9 6V4h6v2"/>
+  </symbol>
+  <symbol id="ico-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="20 6 9 17 4 12"/>
+  </symbol>
+  <symbol id="ico-seal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+    <circle cx="12" cy="12" r="9"/>
+    <polyline points="20 6 9 17 4 12"/>
+  </symbol>
+  <symbol id="ico-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="6 9 12 15 18 9"/>
+  </symbol>
+  <symbol id="ico-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="19" y1="12" x2="5" y2="12"/>
+    <polyline points="12 19 5 12 12 5"/>
+  </symbol>
+  <symbol id="ico-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+    <line x1="12" y1="5" x2="12" y2="19"/>
+    <line x1="5" y1="12" x2="19" y2="12"/>
+  </symbol>
+  <symbol id="ico-hint" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+    <line x1="12" y1="17" x2="12.01" y2="17"/>
+  </symbol>
+  <symbol id="ico-quiz" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+    <line x1="16" y1="13" x2="8" y2="13"/>
+    <line x1="16" y1="17" x2="8" y2="17"/>
+    <polyline points="10 9 9 9 8 9"/>
+  </symbol>
+</svg>
+
+<header class="app-header">
+  <div>
+    <div class="app-title">旅　の　書</div>
+    <div class="app-subtitle">─── 京 都 秘 境 録 ───</div>
+  </div>
+  <svg class="ico" width="28" height="28" style="color:var(--kin)"><use href="#ico-torii"/></svg>
+</header>
+
+<div class="tab-bar">
+  <button class="tab-btn active" id="tab-plan" onclick="switchTab('plan')">
+    <svg class="ico" width="20" height="20"><use href="#ico-scroll"/></svg>
+    旅程
+  </button>
+  <button class="tab-btn" id="tab-quest" onclick="switchTab('quest')">
+    <svg class="ico" width="20" height="20"><use href="#ico-sword"/></svg>
+    使命帖
+  </button>
+</div>
+
+<!-- PLAN SCREEN -->
+<div class="screen active" id="screen-plan">
+  <div id="planList"></div>
+</div>
+
+<!-- QUEST SCREEN -->
+<div class="screen" id="screen-quest">
+  <div id="accordionList"></div>
+</div>
+
+<!-- QUEST DETAIL -->
+<div id="quest-detail-view">
+  <button class="back-btn" onclick="closeDetail()">
+    <svg class="ico" width="16" height="16"><use href="#ico-back"/></svg>
+    もどる
+  </button>
+  <div class="detail-wrap">
+    <div class="scroll-card">
+      <div class="detail-spot-tag" id="dSpotTag">
+        <svg class="ico" width="10" height="10"><use href="#ico-torii"/></svg>
+        <span id="dSpotName"></span>
+      </div>
+      <div class="detail-title" id="dTitle"></div>
+      <div class="detail-desc" id="dDesc"></div>
+      <div class="hint-box" id="dHint" style="display:none">
+        <b><svg class="ico" width="11" height="11"><use href="#ico-hint"/></svg> ヒント ──</b>
+        <span id="dHintText"></span>
+      </div>
+      <button class="reveal-btn" id="answerBtn" onclick="toggleAnswer()" style="display:none">
+        <svg class="ico" width="14" height="14"><use href="#ico-book"/></svg>
+        二人で読もう ── 答え・解説を開く
+      </button>
+      <div class="answer-box" id="answerBox">
+        <b>── 解 説 ──</b>
+        <span id="answerText"></span>
+      </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="quiz-card" id="quizCard" style="display:none">
+      <div class="quiz-eyebrow">
+        <svg class="ico" width="11" height="11"><use href="#ico-quiz"/></svg>
+        問 い
+      </div>
+      <div class="quiz-q" id="quizQ"></div>
+      <div class="choices" id="quizChoices"></div>
+      <div class="quiz-result" id="quizResult"></div>
+    </div>
+
+    <!-- PHOTO -->
+    <div class="photo-card">
+      <div class="photo-eyebrow">
+        <svg class="ico" width="11" height="11"><use href="#ico-camera"/></svg>
+        証 拠
+      </div>
+      <div class="photo-label">写真を撮って使命を完遂せよ</div>
+      <div class="photo-upload" id="photoUpload" onclick="triggerPhoto()">
+        <input type="file" id="photoInput" accept="image/*" capture="environment" onchange="onPhoto(event)">
+        <div class="photo-upload-icon">
+          <svg class="ico" width="36" height="36" style="color:var(--kin)"><use href="#ico-camera"/></svg>
+        </div>
+        <div class="photo-upload-text">ここをタップして撮影</div>
+      </div>
+      <div class="photo-preview" id="photoPreview">
+        <img id="photoImg" src="" alt="">
+        <button class="retake-btn" onclick="retakePhoto()">撮り直す</button>
+      </div>
+    </div>
+
+    <button class="clear-btn" id="clearBtn" onclick="completeQuest()">使　命　完　遂</button>
+  </div>
+</div>
+
+<!-- SEAL MODAL -->
+<div class="modal-bg" id="clearModal">
+  <div class="modal-box">
+    <div class="modal-seal">
+      <svg class="ico" width="44" height="44" style="color:var(--shu)"><use href="#ico-seal"/></svg>
+    </div>
+    <div class="modal-title">朱　印</div>
+    <div class="modal-sub" id="clearSub"></div>
+    <button class="modal-close" onclick="closeModal()">次 の 使 命 へ</button>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" id="fab" onclick="openAddForm()">
+  <svg class="ico" width="22" height="22"><use href="#ico-plus"/></svg>
+</button>
+
+<!-- PLAN FORM -->
+<div class="form-modal" id="planForm">
+  <div class="form-sheet">
+    <div class="form-title" id="planFormTitle">── 旅程を追加 ──</div>
+    <div class="fg"><label>日付</label><input type="date" id="fDate"></div>
+    <div class="fg"><label>タイトル</label><input type="text" id="fTitle" placeholder="例：銀閣寺 見学"></div>
+    <div class="fg"><label>メモ</label><textarea id="fDesc" placeholder="時刻・持ち物など…"></textarea></div>
+    <div class="fg">
+      <label>リンク</label>
+      <div class="link-list" id="linkList"></div>
+      <button class="add-link-btn" onclick="addLink()">＋ リンクを追加</button>
+    </div>
+    <button class="form-submit" onclick="savePlan()">記　録　す　る</button>
+    <button class="form-cancel" onclick="closeForm('planForm')">もどる</button>
+  </div>
+</div>
+
+<div class="bottom-nav">
+  <button class="bnav-btn active" id="nav-plan" onclick="switchTab('plan')">
+    <svg class="ico" width="20" height="20"><use href="#ico-scroll"/></svg>
+    旅程
+  </button>
+  <button class="bnav-btn" id="nav-quest" onclick="switchTab('quest')">
+    <svg class="ico" width="20" height="20"><use href="#ico-sword"/></svg>
+    使命帖
+  </button>
+</div>
+
+<script>
+// ==================== DATA ====================
+const DATA_VERSION = 1;
+
+const SPOTS = [
+  { id:'ginkaku', name:'銀 閣 寺', icon:'torii', day:'一日目・午前' },
+  { id:'kinkaku', name:'金 閣 寺', icon:'castle', day:'一日目・午後' },
+  { id:'teamlab', name:'チームラボ植物園', icon:'leaf', day:'二日目・夜' },
+];
+
+const ALL_QUESTS = [
+  {id:'gq1',spot:'ginkaku',name:'【一之問】なぜ銀色じゃないの？',desc:'アプリの解説（または現地の案内）を読んで、本当の理由をチェックせよ！',hint:'作った人のおじいちゃん（足利義満）と、孫（足利義政）の「好み」の違いがポイント！',answer:'実はね、銀閣寺は「最初から銀を貼る予定はなかった」というのが今の有力な説なんだって！\n金閣寺を作ったおじいちゃん（足利義満）はピカピカ派手なのが好きだったけど、孫の足利義政（銀閣寺を作った人）は、渋くて落ち着いた「わび・さび」っていう文化（東山文化）が大好きだったみたい。\nだから、あえて木の色をそのまま生かして作ったんだって。2人はどっちのデザインが好みかな？',quiz:{q:'銀閣寺を作ったのはだれ？',choices:['足利義政（あしかがよしまさ）','足利義満（あしかがよしみつ）','織田信長（おだのぶなが）'],exp:'正解！金閣寺を作ったおじいちゃんの義満と混同しやすいので注意。義政は「わび・さび」の東山文化が大好きだったよ。'}},
+  {id:'gq2',spot:'ginkaku',name:'【二之問】「巨大なプリン」の正体は？',desc:'銀閣寺の庭園にある、砂でできた大きなプリン（円錐形）と、四角い砂のじゅうたんを見つけて写真を撮れ！',hint:'プリン型のは「向月台（こうげつだい）」、砂のじゅうたんは「銀沙灘（ぎんしゃだん）」という名前だよ。',answer:'向月台（こうげつだい）と銀沙灘（ぎんしゃだん）！\n「月を見るため」や「月の光を反射させて建物を明るくするため」に作られたという噂があるよ。\nこんなにきれいに形をキープするの、職人さんの技術がすごすぎるよね。どうやって固めてるんだろう？',quiz:{q:'砂でできたプリン型の名前はなに？',choices:['向月台（こうげつだい）','銀沙灘（ぎんしゃだん）','金砂台（きんしゃだい）'],exp:'正解！プリン型が「向月台」、平らな砂のじゅうたんが「銀沙灘」だよ。どちらも月と関係があるといわれているよ。'}},
+  {id:'gq3',spot:'ginkaku',name:'【三之問】「勉強机の元祖」を探せ！',desc:'「東求堂（とうぐどう）」にある勉強机（同仁斎：どうじんさい）をパンフレットや案内看板から見つけ出せ！',hint:'これが教科書に出てくる「書院造（しょいんづくり）」の始まりだよ！',answer:'パンフレットに載っている東求堂（とうぐどう）の中の「同仁斎（どうじんさい）」という部屋、これが実は「日本の勉強机の元祖」なんだって！\n畳（たたみ）や障子（しょうじ）があって、今の日本の和室のベースになった作りのことを、教科書では「書院造（しょいんづくり）」って習うよ！教科書で見た記憶あるかな？',quiz:{q:'今の日本の和室のベースになった建築スタイルをなんという？',choices:['書院造（しょいんづくり）','寝殿造（しんでんづくり）','校倉造（あぜくらづくり）'],exp:'正解！書院造は足利義政の同仁斎が元祖。畳・障子・床の間など、今の和室に続いているよ。'}},
+  {id:'gq4',spot:'ginkaku',name:'【四之問】てっぺんの「鳥」を激写せよ！',desc:'銀閣寺（観音殿）の一番てっぺんをズームして、ある鳥を探して写真を撮れ！',hint:'伝説の鳥だよ。一万円札にも描かれているよ！',answer:'「鳳凰（ほうおう）」です！\n火の鳥とも呼ばれていて、建物が火事にならないように見守ってくれているんだって。\n実は、一万円札の裏側にもこの鳳凰が描かれているよ。あとで本当にお札にいるか、一緒に財布を開けて確認してみよう！',quiz:{q:'銀閣寺のてっぺんにいる伝説の鳥はなに？',choices:['鳳凰（ほうおう）','鶴（つる）','龍（りゅう）'],exp:'正解！鳳凰は火の鳥とも呼ばれる伝説の鳥。一万円札の裏にも描かれているよ、あとで確認しよう！'}},
+  {id:'gq5',spot:'ginkaku',name:'【五之問】絶景展望所から全体を激撮！',desc:'順路の途中にある展望所から、銀閣寺の全体が見える景色を撮影せよ！',hint:'少し山を登ると展望所があるよ。上まで行くと銀閣寺全体が見渡せる！',answer:'ここからの景色、最高だね！\n今から500年以上も前に、足利義政も、きっとこの山の上からの景色を眺めて「渋くて良い建物ができたな〜」って満足していたのかも。\n当時の将軍様と、全く同じ景色を今2人で見ていると思うと、なんだかタイムスリップしたみたいでワクワクするね！'},
+  {id:'kq1',spot:'kinkaku',name:'【一之問】3階建ての「ヒミツ」を暴け！',desc:'金閣寺のパンフレットの解説を読んで、1階・2階・3階の「建築スタイルの違い」を読み解け！',hint:'1階は貴族、2階は武士、3階は仏教…それぞれ違うスタイルが使われているよ！',answer:'金閣寺は1つの建物なのに、階ごとに建築スタイルが全然違うんだって！\n・1階：貴族のスタイル（寝殿造）\n・2階：武士のスタイル（書院造）\n・3階：中国の仏教スタイル（仏殿造）\n作った足利義満（3代将軍）は、当時のすべてのパワーをアピールしたくて、全部のいいとこ取りをした贅沢な建物を建てちゃったんだね。',quiz:{q:'金閣寺を作ったのはだれ？',choices:['足利義満（あしかがよしみつ）','足利義政（あしかがよしまさ）','豊臣秀吉（とよとみひでよし）'],exp:'正解！足利義満は3代将軍。孫の義政が銀閣寺を作ったよ。金閣寺はド派手でパワフル、銀閣寺は渋くて「わび・さび」、対照的だね！'}},
+  {id:'kq2',spot:'kinkaku',name:'【二之問】池のほとりに建てた理由は？',desc:'現地の案内や教科書の知識から、この庭園のテーマ（仏教の言葉）を探せ！',hint:'仏教で「天国のような理想の世界」のことをなんという？',answer:'「極楽浄土（ごくらくじょうど）」を地上に再現しようとしたため！\n目の前にある大きな池は「鏡湖池（きょうこち）」。\n水面にきれいに逆さまに映る金閣寺は「逆さ金閣」って呼ばれていて、それも含めて計算された美しさなんだって。上手に写真撮れたかな？',quiz:{q:'義満がこの庭園で再現しようとした仏教の世界はなに？',choices:['極楽浄土（ごくらくじょうど）','地獄（じごく）','竜宮城（りゅうぐうじょう）'],exp:'正解！極楽浄土とは仏教で「天国のような理想の世界」のこと。池に映る逆さ金閣も、その美しさの計算のうちだよ。'}},
+  {id:'kq3',spot:'kinkaku',name:'【三之問】金箔は何キロ使われている？',desc:'パンフレット（または解説）を読み込んで、昭和の大修理で貼り直された金箔の「重さ（または枚数）」を突き止めよ！',hint:'お米の袋に例えると想像しやすいよ！',answer:'約20万枚、重さにすると約20キログラム！\n20キロのお米の袋を想像すると、ものすごい量の本物の金がこの建物に貼られているのがわかるね。総額いくらになるんだろう…！？',quiz:{q:'昭和の大修理で金閣寺に使われた金箔、重さはだいたいどのくらい？',choices:['約20キログラム','約2キログラム','約200キログラム'],exp:'正解！約20kg、枚数にすると約20万枚！本物の金がこんなにたくさん貼られているんだね。いくらするんだろう…！'}},
+  {id:'kq4',spot:'kinkaku',name:'【四之問】「謎の石」を見つけてコイン投げ！',desc:'「白蛇の塚（はくじゃのつか）」という石の塔を探せ！お椀みたいな石に小銭が入るかチャレンジ！',hint:'白蛇は水とお金の神さまなんだって。探してみよう！',answer:'白蛇は「お水・お金の神さま」なんだって。\n建物が火事にならないように守ってくれる意味があるよ。\nお椀みたいな石の中に小銭が見事入ったら、いいことがあるかも！？2人で1回ずつ、運試しで投げてみよう！'},
+  {id:'kq5',spot:'kinkaku',name:'【五之問】2つの鳳凰を比べろ！',desc:'金閣寺のてっぺんにいる鳳凰を撮影し、午前中に撮った「銀閣寺の鳳凰」の写真と見比べて違いを会話せよ！',hint:'銀閣寺のQ4で撮った写真と見比べてみよう！ピカピカVS渋い、どっちが強い？',answer:'金閣寺にも銀閣寺と同じ「鳳凰（ほうおう）」がいたね！\n午前中に撮った銀閣寺の鳳凰の写真と、今の金閣寺の鳳凰の写真を並べて見比べてみよう。\nピカピカなのと渋いの、どっちの鳳凰の方が強そうでカッコいいと思う？',quiz:{q:'鳳凰が建物のてっぺんに置かれている理由はなに？',choices:['火事にならないよう守るため','かっこよく見えるから','将軍が好きだったから'],exp:'正解！鳳凰は伝説の鳥で、建物を火事から守ると信じられていたんだよ。一万円札にも描かれているよ！'}},
+  {id:'tl1',spot:'teamlab',name:'【図鑑壱】お化けみたいな巨大な木を激写せよ！',desc:'光のアートで照らされた、ものすごく大きくて迫力のある木を探して写真を撮ろう！',answer:'この木は「ツブラジイ」っていう、なんと樹齢（木の年齢）が何百年もの歴史がある大きな木なんだって！\nチームラボのアートは、本物の生きた自然をそのまま使っているのがすごいところ。光に照らされると、昼間とは全然違う生き物みたいに見えてカッコいいね！'},
+  {id:'tl2',spot:'teamlab',name:'【図鑑弐】触ると色が変わる！「光る卵」を激写！',desc:'たくさん並んでいる光る卵（卵形体）をそっと押してみて、色が変わった瞬間の写真をアルバムから選ぼう！',answer:'この卵、手で押したり風で揺れたりすると、音を鳴らしながら色が変わるんだって！\nしかも、1つの卵の色が変わると、周りの卵もドミノ倒しみたいに次々と色が変わっていくよ。まるで光が生き物みたいに会話しているみたいで不思議だね。'},
+  {id:'tl3',spot:'teamlab',name:'【図鑑参】池の水面に映る「光の線」を収めよ！',desc:'植物園の中にある池（大池）のエリアに行って、水の上に浮かび上がるきれいな光の線を撮影しよう！',answer:'水の上に映っているのは、実は「デジタルで描かれた鳥」なんだって！\n鳥たちが池の上を自由に飛び回って、その動いた跡がきれいな光の線になって残っているよ。水面に反射してキラキラ光る様子は、まるで魔法の世界みたいだね。'},
+  {id:'tl4',spot:'teamlab',name:'【図鑑肆】夜の森の「光る文字」を見つけ出せ！',desc:'木や草が生い茂る森の中をよーく見てみて、デジタル光で描かれた「文字」のようなアートを探して撮影しよう！',answer:'見つけられたかな？これは、昔の日本の文字（書道）が立体的に暗闇の中に浮かび上がっているアートなんだって。\n風が吹いて木の葉っぱが揺れると、文字の形もゆらゆら変わるよ。2人には何の文字に見えたかな？'},
+  {id:'tl5',spot:'teamlab',name:'【図鑑伍】一瞬で消える「光のひまわり」を探せ！',desc:'暗闇の中に、きれいなひまわりの花がプロジェクションマッピングで映し出されている場所を探して撮影しよう！',answer:'このひまわりの花、実はあらかじめ録画された映像を流しているわけじゃないんだって！\nコンピューターがその場でずーっと新しい花を描き続けているから、今2人が見たひまわりの形は、もう二度と見られない「一期一会（一生に一度だけ）」の特別な瞬間なんだって。バッチリ写真に残せてラッキーだったね！'},
+  {id:'tl6',spot:'teamlab',name:'【図鑑陸】風が吹くと輝く「光る草むら」を激写！',desc:'森の奥にある、背の高い草（ススキなど）が密集してキラキラ光っているエリアを見つけて撮影しよう！',answer:'この草むらの光、実は「風の強さ」に合わせて明るさが変わったり、人が近くを通るとサーッと波のように光が広がったりするんだって！\n自然の風とデジタルアートが合体しているから、風が強い日と静かな日で全然違う光り方をするみたい。今夜の風はどんな光を作ってくれたかな？'},
+  {id:'tl7',spot:'teamlab',name:'【図鑑漆】闇夜に浮かぶ「光の彫刻」を探せ！',desc:'たくさんの光の線が集まって、空間の中に立体的な形が浮かび上がっている不思議な作品を撮影しよう！',answer:'これは、たくさんの光の点や線をコンピューターで計算して、まるでそこに透明な彫刻があるみたいに見せているアートなんだって。\nどこから見るか（角度）によって全然違う形に見えるのがおもしろいところ。右から見たときと左から見たとき、どっちがカッコよかった？'},
+  {id:'tl8',spot:'teamlab',name:'【図鑑捌】「光の道・グラデーション」を1枚に！',desc:'植物園の歩道や木々が、紫・ピンク・青などグラデーションの光で包まれているお気に入りの景色を撮影しよう！',answer:'チームラボの光は、単色じゃなくて絶妙なグラデーション（色が混ざり合う様子）がすごく綺麗だよね。\n実はこの色の変化も、その場の気温や、近くにいる人の数によって少しずつ変わっているらしいよ。2人が歩いた「今この瞬間」だけのオリジナルの色の組み合わせだね！'},
+  {id:'tl9',spot:'teamlab',name:'【図鑑玖】池の中の「不思議な彫刻」を見つけ出せ！',desc:'池の中にぽつんと浮かぶ、光を浴びてキラキラしている現代アートの彫刻を探して撮影しよう！',answer:'夜の池の中に浮かぶこの彫刻、昼間に見るとただの白い塊に見えるのに、夜になると光を浴びてまるで魔法の島みたいに変身するんだって！\n水面にゆらゆら反射する光と一緒に撮ると、さらに幻想的な写真になるよ。カメラマン、上手に撮れたかな？'},
+  {id:'tl10',spot:'teamlab',name:'【図鑑拾・結】2人の「最高の笑顔」をパシャリ！',desc:'光るアートを背景にして、2人の仲良し写真（または、地面に映る2人の影のシルエット）を撮影しよう！',answer:'使命完遂、おめでとうーー！\nこれでチームラボの「光の図鑑」が10個すべて埋まったね！手持ちカメラを持って夢中で歩いたこの夜の思い出が、このアプリの中にバッチリ保存されました。\n2人で一緒に驚いて、一緒に見たこの綺麗な景色、ずーっと忘れない最高の宝物になったね！'},
+];
+
+const INIT_PLANS = [
+  {id:'p_630_1',date:'2025-06-30',title:'🚗 自宅 → 河原町',desc:'16:00 出発 → 17:00 到着予定',links:[]},
+  {id:'p_630_2',date:'2025-06-30',title:'🍽️ 夜ご飯｜煮野菜 おにかい',desc:'17:30 予約（京都河原町駅に荷物を預けてから）\n四条河原町の京野菜居酒屋 - 予約必須の人気店【五十家グループ】',links:[{url:'https://tabelog.com/kyoto/A2601/A260201/26030741/',label:'お店情報'}]},
+  {id:'p_630_3',date:'2025-06-30',title:'🏨 ホテル チェックイン',desc:'夜ご飯のあとチェックイン',links:[{url:'https://www.jalan.net/yad302248/access/?screenId=UWW3111&stayCount=1&yadNo=302248&dateUndecided=1&roomCount=1&adultNum=2&roomCrack=200000&callbackHistFlg=1&smlCd=260205&distCd=01',label:'ホテル予約ページ'}]},
+  {id:'p_701_1',date:'2025-07-01',title:'🍳 朝ご飯',desc:'8:00〜8:30',links:[]},
+  {id:'p_701_2',date:'2025-07-01',title:'🚌 河原町 → 銀閣寺｜市バス32系統',desc:'8:53発 → 9:24着（または 9:13発 → 9:44着）\n河原町まで徒歩約10分',links:[]},
+  {id:'p_701_3',date:'2025-07-01',title:'⛩️ 銀閣寺 見学',desc:'9:30頃〜10:30（約1時間）\nパンフレットを入口でゲット！使命帖に挑戦しよう',links:[{url:'https://maps.app.goo.gl/3QxQ4FnjBCCFd7vn6',label:'銀閣寺マップ'}]},
+  {id:'p_701_4',date:'2025-07-01',title:'🚌 銀閣寺 → 金閣寺｜市バス204系統',desc:'10:17発 → 11:07着（または 10:33発 → 11:23着）',links:[]},
+  {id:'p_701_5',date:'2025-07-01',title:'🏯 金閣寺 見学',desc:'11:10頃〜12:30（約1時間20分）\nパンフレットをゲット！使命帖に挑戦しよう',links:[{url:'https://maps.app.goo.gl/oVSuCLtCuJXJJTtB9',label:'金閣寺マップ'}]},
+  {id:'p_701_6',date:'2025-07-01',title:'🚌 金閣寺 → 京都駅',desc:'移動約40分 → 13:00頃到着',links:[]},
+  {id:'p_701_7',date:'2025-07-01',title:'🍜 昼ご飯｜京都ポルタ',desc:'京都駅構内の地下街でランチ',links:[{url:'https://www.porta.co.jp/',label:'京都ポルタ'}]},
+  {id:'p_701_8',date:'2025-07-01',title:'🌿 チームラボ ボタニカルガーデン 大阪',desc:'京都駅から徒歩10分\n予約 14:00〜14:30入場\nデジカメ・スマホ充電を忘れずに！',links:[{url:'https://www.teamlab.art/jp/e/botanicalgarden-osaka/',label:'公式サイト（予約確認）'}]},
+  {id:'p_701_9',date:'2025-07-01',title:'🚌 チームラボ → 河原町駅｜市バス4系統',desc:'15:34発 → 15:53着（または 15:41発 → 15:59着）',links:[]},
+  {id:'p_701_10',date:'2025-07-01',title:'🚗 河原町 → 帰宅',desc:'約1時間 → 17:00〜17:30 到着予定',links:[]},
+];
+
+// ==================== STATE ====================
+let state;
+const saved = JSON.parse(localStorage.getItem('tabiquest_v3') || 'null');
+if (!saved || saved.version !== DATA_VERSION) {
+  state = { version:DATA_VERSION, plans:INIT_PLANS.map(p=>({...p})), cleared:{}, openSpots:{} };
+} else {
+  state = saved;
+}
+function save() { state.version=DATA_VERSION; localStorage.setItem('tabiquest_v3',JSON.stringify(state)); }
+
+// ==================== TABS ====================
+let currentTab = 'plan';
+function switchTab(tab) {
+  currentTab = tab;
+  ['plan','quest'].forEach(t=>{
+    document.getElementById('screen-'+t).classList.toggle('active',t===tab);
+    document.getElementById('tab-'+t).classList.toggle('active',t===tab);
+    document.getElementById('nav-'+t).classList.toggle('active',t===tab);
+  });
+  closeDetail();
+  if(tab==='quest') renderAccordion();
+  if(tab==='plan') renderPlans();
+}
+
+// ==================== PLANS ====================
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function renderPlans() {
+  const el = document.getElementById('planList');
+  if(!state.plans.length){ el.innerHTML=`<div class="empty"><svg width="40" height="40" style="color:var(--muted)"><use href="#ico-scroll"/></svg><p>旅程がまだありません。<br>右下の＋から追加しよう。</p></div>`; return; }
+  const sorted = [...state.plans].sort((a,b)=>(a.date||'9').localeCompare(b.date||'9'));
+  const days={};
+  sorted.forEach(p=>{ const k=p.date||'__'; if(!days[k])days[k]=[]; days[k].push(p); });
+  const dlab={'2025-06-30':'六月三十日　一日目','2025-07-01':'七月一日　二日目','__':'日付未定'};
+  el.innerHTML = Object.entries(days).map(([k,plans])=>`
+    <div class="day-section">
+      <div class="day-header">
+        <div class="day-header-text">${dlab[k]||k}</div>
+        <div class="day-header-line"></div>
+      </div>
+      ${plans.map(p=>`
+        <div class="plan-card">
+          <div class="plan-header">
+            <div class="plan-title">${esc(p.title)}</div>
+            <div class="plan-actions">
+              <button class="icon-btn" onclick="editPlan('${p.id}')" title="編集"><svg width="16" height="16"><use href="#ico-edit"/></svg></button>
+              <button class="icon-btn" onclick="deletePlan('${p.id}')" title="削除"><svg width="16" height="16"><use href="#ico-trash"/></svg></button>
+            </div>
+          </div>
+          ${p.desc?`<div class="plan-desc">${esc(p.desc).replace(/\n/g,'<br>')}</div>`:''}
+          ${p.links?.length?`<div class="plan-links">${p.links.map(l=>`<a class="plan-link" href="${esc(l.url)}" target="_blank" rel="noopener"><svg width="11" height="11"><use href="#ico-link"/></svg> ${esc(l.label||'リンク')}</a>`).join('')}</div>`:''}
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+function deletePlan(id){ if(!confirm('この旅程を削除しますか？'))return; state.plans=state.plans.filter(p=>p.id!==id); save(); renderPlans(); }
+
+let editingPlanId=null;
+function openAddForm(){
+  editingPlanId=null;
+  document.getElementById('planFormTitle').textContent='── 旅程を追加 ──';
+  document.getElementById('fDate').value='';
+  document.getElementById('fTitle').value='';
+  document.getElementById('fDesc').value='';
+  document.getElementById('linkList').innerHTML='';
+  document.getElementById('planForm').classList.add('show');
+}
+function editPlan(id){
+  const p=state.plans.find(x=>x.id===id); if(!p)return;
+  editingPlanId=id;
+  document.getElementById('planFormTitle').textContent='── 旅程を編集 ──';
+  document.getElementById('fDate').value=p.date||'';
+  document.getElementById('fTitle').value=p.title||'';
+  document.getElementById('fDesc').value=p.desc||'';
+  document.getElementById('linkList').innerHTML='';
+  (p.links||[]).forEach(l=>addLink(l.url,l.label));
+  document.getElementById('planForm').classList.add('show');
+}
+function addLink(url='',label=''){
+  const li=document.createElement('div'); li.className='link-item';
+  li.innerHTML=`<input type="url" class="lu" placeholder="https://..." value="${esc(url)}"><input type="text" class="ll" placeholder="名前" value="${esc(label)}" style="max-width:90px"><button class="link-remove" onclick="this.parentElement.remove()">✕</button>`;
+  document.getElementById('linkList').appendChild(li);
+}
+function savePlan(){
+  const title=document.getElementById('fTitle').value.trim();
+  if(!title){alert('タイトルを入力してください');return;}
+  const links=[...document.querySelectorAll('#linkList .link-item')].map(li=>({url:li.querySelector('.lu').value.trim(),label:li.querySelector('.ll').value.trim()})).filter(l=>l.url);
+  const data={date:document.getElementById('fDate').value,title,desc:document.getElementById('fDesc').value.trim(),links};
+  if(editingPlanId){const i=state.plans.findIndex(p=>p.id===editingPlanId);if(i!==-1)state.plans[i]={id:editingPlanId,...data};editingPlanId=null;}
+  else{state.plans.push({id:'p'+Date.now(),...data});}
+  save(); renderPlans(); closeForm('planForm');
+}
+function closeForm(id){document.getElementById(id).classList.remove('show');}
+
+// ==================== ACCORDION ====================
+const SPOT_ICO = { torii:'ico-torii', castle:'ico-castle', leaf:'ico-leaf' };
+function renderAccordion(){
+  const el=document.getElementById('accordionList');
+  el.innerHTML=SPOTS.map(spot=>{
+    const quests=ALL_QUESTS.filter(q=>q.spot===spot.id);
+    const cleared=quests.filter(q=>state.cleared[q.id]).length;
+    const total=quests.length;
+    const done=cleared===total;
+    const open=!!state.openSpots[spot.id];
+    const pct=total?Math.round(cleared/total*100):0;
+    return `
+    <div class="spot-accordion${open?' open':''}" id="acc-${spot.id}">
+      <button class="spot-header" onclick="toggleSpot('${spot.id}')">
+        <div class="spot-icon-wrap">
+          <svg width="22" height="22" style="color:var(--kin)"><use href="#${SPOT_ICO[spot.icon]}"/></svg>
+        </div>
+        <div class="spot-info">
+          <div class="spot-name">${spot.name}</div>
+          <div class="spot-day">${spot.day}　全${total}使命</div>
+          <div class="spot-bar-wrap"><div class="spot-bar-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div class="spot-count${done?' done':''}">${cleared}/${total}</div>
+        <div class="spot-chevron"><svg width="18" height="18" style="color:var(--muted)"><use href="#ico-chevron"/></svg></div>
+      </button>
+      <div class="spot-body">
+        ${quests.map(q=>{
+          const cl=!!state.cleared[q.id];
+          return `<div class="quest-item${cl?' cleared':''}" onclick="openDetail('${q.id}')">
+            <div class="qi-icon-wrap">
+              <svg width="18" height="18" style="color:${cl?'var(--ryoku)':'var(--muted)'}"><use href="#ico-sword"/></svg>
+              <div class="qi-seal">印</div>
+            </div>
+            <div class="qi-body">
+              <div class="qi-name">${esc(q.name)}</div>
+              <div class="qi-desc">${esc(q.desc)}</div>
+              <span class="qi-status ${cl?'status-done':'status-open'}">${cl?'完　遂':'未　達'}</span>
+            </div>
+            <div class="qi-arrow"><svg width="14" height="14"><use href="#ico-chevron" style="transform:rotate(-90deg)"/></svg></div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+function toggleSpot(id){ state.openSpots[id]=!state.openSpots[id]; save(); renderAccordion(); }
+
+// ==================== QUEST DETAIL ====================
+let currentQuestId=null, quizAnswered=false, photoTaken=false;
+
+function openDetail(qid){
+  const q=ALL_QUESTS.find(x=>x.id===qid); if(!q)return;
+  currentQuestId=qid; quizAnswered=false; photoTaken=false;
+  const spot=SPOTS.find(s=>s.id===q.spot);
+  document.getElementById('dSpotName').textContent=spot?spot.name:'';
+  document.getElementById('dTitle').textContent=q.name;
+  document.getElementById('dDesc').textContent=q.desc||'';
+  if(q.hint){document.getElementById('dHint').style.display='block';document.getElementById('dHintText').textContent=q.hint;}
+  else{document.getElementById('dHint').style.display='none';}
+  if(q.answer){document.getElementById('answerBtn').style.display='flex';document.getElementById('answerText').textContent=q.answer;document.getElementById('answerBox').classList.remove('show');document.getElementById('answerBtn').innerHTML='<svg class="ico" width="14" height="14"><use href="#ico-book"/></svg> 二人で読もう ── 答え・解説を開く';}
+  else{document.getElementById('answerBtn').style.display='none';document.getElementById('answerBox').classList.remove('show');}
+  const hasQuiz=!!(q.quiz?.q);
+  if(hasQuiz){
+    document.getElementById('quizCard').style.display='block';
+    document.getElementById('quizQ').textContent=q.quiz.q;
+    const choices=[...q.quiz.choices]; const correct=choices[0]; choices.sort(()=>Math.random()-.5); const ci=choices.indexOf(correct);
+    document.getElementById('quizChoices').innerHTML=choices.map((c,i)=>`<button class="choice-btn" onclick="answerQuiz(this,${i===ci})">${esc(c)}</button>`).join('');
+    document.getElementById('quizResult').className='quiz-result'; document.getElementById('quizResult').textContent='';
+  } else { document.getElementById('quizCard').style.display='none'; quizAnswered=true; }
+  document.getElementById('photoInput').value='';
+  const cl=state.cleared[qid];
+  if(cl?.photoData){document.getElementById('photoImg').src=cl.photoData;document.getElementById('photoPreview').style.display='block';document.getElementById('photoUpload').style.display='none';photoTaken=true;quizAnswered=true;}
+  else{document.getElementById('photoPreview').style.display='none';document.getElementById('photoUpload').style.display='block';}
+  const cb=document.getElementById('clearBtn');
+  if(cl){cb.textContent='使　命　完　遂　済';cb.className='clear-btn done';}
+  else{cb.textContent='使　命　完　遂';cb.className='clear-btn';}
+  updateClearBtn();
+  document.querySelectorAll('.screen').forEach(s=>s.style.display='none');
+  document.querySelector('.tab-bar').style.display='none';
+  document.getElementById('fab').style.display='none';
+  document.getElementById('quest-detail-view').classList.add('show');
+  window.scrollTo(0,0);
+}
+function closeDetail(){
+  document.getElementById('quest-detail-view').classList.remove('show');
+  document.querySelectorAll('.screen').forEach(s=>s.style.display='');
+  document.getElementById('screen-'+currentTab).style.display='block';
+  document.querySelector('.tab-bar').style.display='';
+  document.getElementById('fab').style.display='';
+  currentQuestId=null;
+}
+function toggleAnswer(){
+  const box=document.getElementById('answerBox');const btn=document.getElementById('answerBtn');
+  const show=box.classList.toggle('show');
+  btn.innerHTML=show?'<svg class="ico" width="14" height="14"><use href="#ico-book"/></svg> 解説を閉じる':'<svg class="ico" width="14" height="14"><use href="#ico-book"/></svg> 二人で読もう ── 答え・解説を開く';
+}
+function answerQuiz(btn,isCorrect){
+  if(quizAnswered&&isCorrect)return;
+  document.querySelectorAll('.choice-btn').forEach(b=>b.style.pointerEvents='none');
+  const q=ALL_QUESTS.find(x=>x.id===currentQuestId);
+  const res=document.getElementById('quizResult');
+  if(isCorrect){btn.classList.add('correct');res.className='quiz-result ok show';res.textContent='正　解　　'+( q.quiz.exp?q.quiz.exp:'');quizAnswered=true;}
+  else{btn.classList.add('wrong');res.className='quiz-result ng show';res.textContent='不　正　解　── もう一度よく考えてみよう。';document.querySelectorAll('.choice-btn:not(.wrong)').forEach(b=>b.style.pointerEvents='');}
+  updateClearBtn();
+}
+function triggerPhoto(){document.getElementById('photoInput').click();}
+function onPhoto(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{document.getElementById('photoImg').src=ev.target.result;document.getElementById('photoPreview').style.display='block';document.getElementById('photoUpload').style.display='none';photoTaken=true;window._tmpPhoto=ev.target.result;updateClearBtn();};
+  reader.readAsDataURL(file);
+}
+function retakePhoto(){document.getElementById('photoPreview').style.display='none';document.getElementById('photoUpload').style.display='block';document.getElementById('photoInput').value='';photoTaken=false;window._tmpPhoto=null;updateClearBtn();}
+function updateClearBtn(){
+  if(state.cleared[currentQuestId])return;
+  const btn=document.getElementById('clearBtn');
+  btn.className='clear-btn'+(quizAnswered&&photoTaken?' ready':'');
+}
+function completeQuest(){
+  if(!currentQuestId||state.cleared[currentQuestId])return;
+  state.cleared[currentQuestId]={photoData:window._tmpPhoto||null}; save();
+  const q=ALL_QUESTS.find(x=>x.id===currentQuestId);
+  document.getElementById('clearSub').textContent=`「${q.name}」の使命を果たした！`;
+  document.getElementById('clearModal').classList.add('show');
+  document.getElementById('clearBtn').textContent='使　命　完　遂　済';
+  document.getElementById('clearBtn').className='clear-btn done';
+}
+function closeModal(){document.getElementById('clearModal').classList.remove('show');}
+
+// ==================== INIT ====================
+renderPlans();
+renderAccordion();
+</script>
+</body>
+</html>
